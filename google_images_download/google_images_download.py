@@ -206,22 +206,16 @@ class googleimagesdownload:
         print(element)
         # Scroll down
         for i in range(30):
-            print('Scrolling down')
-            print(i)
             element.send_keys(Keys.PAGE_DOWN)
             time.sleep(0.3)
 
         try:
             browser.find_element_by_id("smb").click()
             for i in range(50):
-                print('try bot id protection')
-                print(i)
                 element.send_keys(Keys.PAGE_DOWN)
                 time.sleep(0.3)  # bot id protection
         except:
             for i in range(10):
-                print('except bot id protection')
-                print(i)
                 element.send_keys(Keys.PAGE_DOWN)
                 time.sleep(0.3)  # bot id protection
 
