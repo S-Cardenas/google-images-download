@@ -187,9 +187,8 @@ class googleimagesdownload:
         chrome_options.add_argument('--disk-cache-dir={}'.format(_tmp_folder + '/cache-dir'))
         chrome_options.add_argument(
             'user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36')
-
         chrome_options.binary_location = "/var/task/bin/headless-chromium"
-        print('TRYING')
+
         try: 
             browser = webdriver.Chrome(chrome_options=chrome_options)
         except Exception as e:
@@ -197,7 +196,6 @@ class googleimagesdownload:
                   "argument to specify the path to the executable.) or google chrome browser is not "
                   "installed on your machine (exception: %s)" % e)
             sys.exit()
-        print('HERERERREE')
 
         # Open the link
         browser.get(url)
@@ -938,15 +936,11 @@ class googleimagesdownload:
                     url = self.build_search_url(search_term,params,arguments['url'],arguments['similar_images'],arguments['specific_site'],arguments['safe_search'])      #building main search url
 
                     if limit < 101:
-                        print('Download page')
                         raw_html = self.download_page(url)  # download page
                     else:
-                        print('DownloadExtendedPage')
                         raw_html = self.download_extended_page(url,arguments['chromedriver'])
                     
                     print("Starting Download...")
-                    print('raw_html')
-                    print(raw_html)
                     items,errorCount,abs_path = self._get_all_items(raw_html,main_directory,dir_name,limit,arguments)    #get all image items and download images
                     paths[pky + search_keyword[i] + sky] = abs_path
 
