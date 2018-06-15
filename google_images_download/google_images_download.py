@@ -203,7 +203,7 @@ class googleimagesdownload:
         print("Getting you a lot of images. This may take a few moments...")
 
         element = browser.find_element_by_tag_name("body")
-        print(element)
+
         # Scroll down
         for i in range(30):
             element.send_keys(Keys.PAGE_DOWN)
