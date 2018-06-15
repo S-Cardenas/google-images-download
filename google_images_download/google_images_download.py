@@ -33,6 +33,7 @@ import json
 import re
 import codecs
 import socket
+import uuid
 
 args_list = ["keywords", "keywords_from_file", "prefix_keywords", "suffix_keywords",
              "limit", "format", "color", "color_type", "usage_rights", "size",
@@ -154,22 +155,49 @@ class googleimagesdownload:
     def download_extended_page(self,url,chromedriver):
         from selenium import webdriver
         from selenium.webdriver.common.keys import Keys
-        if sys.version_info[0] < 3:
-            reload(sys)
-            sys.setdefaultencoding('utf8')
-        options = webdriver.ChromeOptions()
-        options.add_argument('--no-sandbox')
-        options.add_argument("--headless")
-        options.binary_location = "/var/task/bin/headless-chromium"
 
-        try:
-            browser = webdriver.Chrome(chrome_options=options)
+        chrome_options = webdriver.ChromeOptions()
+        _tmp_folder = '/tmp/{}'.format(uuid.uuid4())
+
+        if not os.path.exists(_tmp_folder):
+            os.makedirs(_tmp_folder)
+
+        if not os.path.exists(_tmp_folder + '/user-data'):
+            os.makedirs(_tmp_folder + '/user-data')
+
+        if not os.path.exists(_tmp_folder + '/data-path'):
+            os.makedirs(_tmp_folder + '/data-path')
+
+        if not os.path.exists(_tmp_folder + '/cache-dir'):
+            os.makedirs(_tmp_folder + '/cache-dir')
+
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--window-size=1280x1696')
+        chrome_options.add_argument('--user-data-dir={}'.format(_tmp_folder + '/user-data'))
+        chrome_options.add_argument('--hide-scrollbars')
+        chrome_options.add_argument('--enable-logging')
+        chrome_options.add_argument('--log-level=0')
+        chrome_options.add_argument('--v=99')
+        chrome_options.add_argument('--single-process')
+        chrome_options.add_argument('--data-path={}'.format(_tmp_folder + '/data-path'))
+        chrome_options.add_argument('--ignore-certificate-errors')
+        chrome_options.add_argument('--homedir={}'.format(_tmp_folder))
+        chrome_options.add_argument('--disk-cache-dir={}'.format(_tmp_folder + '/cache-dir'))
+        chrome_options.add_argument(
+            'user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36')
+
+        chrome_options.binary_location = "/var/task/bin/headless-chromium"
+        print('TRYING')
+        try: 
+            browser = webdriver.Chrome(chrome_options=chrome_options)
         except Exception as e:
             print("Looks like we cannot locate the path the 'chromedriver' (use the '--chromedriver' "
                   "argument to specify the path to the executable.) or google chrome browser is not "
                   "installed on your machine (exception: %s)" % e)
             sys.exit()
-        browser.set_window_size(1024, 768)
+        print('HERERERREE')
 
         # Open the link
         browser.get(url)
@@ -177,6 +205,7 @@ class googleimagesdownload:
         print("Getting you a lot of images. This may take a few moments...")
 
         element = browser.find_element_by_tag_name("body")
+        print(element)
         # Scroll down
         for i in range(30):
             element.send_keys(Keys.PAGE_DOWN)
@@ -200,6 +229,73 @@ class googleimagesdownload:
         browser.close()
 
         return source
+
+
+        # from selenium import webdriver
+        # from selenium.webdriver.common.keys import Keys
+        # # if sys.version_info[0] < 3:
+        # #     reload(sys)
+        # #     sys.setdefaultencoding('utf8')
+        # options = webdriver.ChromeOptions()
+        # options.add_argument('--no-sandbox')
+        # options.add_argument("--headless")
+        # options.add_argument("--disable-gpu")
+        # # options.add_argument("--window-size=1280x1696")
+        # options.add_argument("--user-data-dir=/tmp/user-data")
+        # options.add_argument("--hide-scrollbars")
+        # options.add_argument("--enable-logging")
+        # options.add_argument("--log-level=0")
+        # options.add_argument("--v=99")
+        # options.add_argument("--single-process")
+        # options.add_argument("--data-path=/tmp/data-path")
+        # options.add_argument("--ignore-certificate-errors")
+        # options.add_argument("--homedir=/tmp")
+        # options.add_argument("--disk-cache-dir=/tmp/cache-dir")
+        # options.add_argument("--remote-debugging-port=9222")
+        # options.add_argument("user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
+        # options.binary_location = "/var/task/bin/headless-chromium"
+
+        # try:
+        #     browser = webdriver.Chrome(chrome_options=options)
+        #     # print('options')
+        #     # print(options)
+        #     # return 'anything'
+        # except Exception as e:
+        #     print("Looks like we cannot locate the path the 'chromedriver' (use the '--chromedriver' "
+        #           "argument to specify the path to the executable.) or google chrome browser is not "
+        #           "installed on your machine (exception: %s)" % e)
+        #     sys.exit()
+        # browser.set_window_size(1024, 768)
+
+        # # Open the link
+        # browser.get(url)
+        # time.sleep(1)
+        # print("Getting you a lot of images. This may take a few moments...")
+
+        # element = browser.find_element_by_tag_name("body")
+        # # Scroll down
+        # for i in range(30):
+        #     element.send_keys(Keys.PAGE_DOWN)
+        #     time.sleep(0.3)
+
+        # try:
+        #     browser.find_element_by_id("smb").click()
+        #     for i in range(50):
+        #         element.send_keys(Keys.PAGE_DOWN)
+        #         time.sleep(0.3)  # bot id protection
+        # except:
+        #     for i in range(10):
+        #         element.send_keys(Keys.PAGE_DOWN)
+        #         time.sleep(0.3)  # bot id protection
+
+        # print("Reached end of Page.")
+        # time.sleep(0.5)
+
+        # source = browser.page_source #page source
+        # #close the browser
+        # browser.close()
+
+        # return source
 
 
     #Correcting the escape characters for python2
@@ -836,11 +932,15 @@ class googleimagesdownload:
                     url = self.build_search_url(search_term,params,arguments['url'],arguments['similar_images'],arguments['specific_site'],arguments['safe_search'])      #building main search url
 
                     if limit < 101:
+                        print('Download page')
                         raw_html = self.download_page(url)  # download page
                     else:
+                        print('DownloadExtendedPage')
                         raw_html = self.download_extended_page(url,arguments['chromedriver'])
-
+                    
                     print("Starting Download...")
+                    print('raw_html')
+                    print(raw_html)
                     items,errorCount,abs_path = self._get_all_items(raw_html,main_directory,dir_name,limit,arguments)    #get all image items and download images
                     paths[pky + search_keyword[i] + sky] = abs_path
 
